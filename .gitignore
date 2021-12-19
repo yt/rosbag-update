@@ -1,0 +1,9 @@
+.venv
+dist
+rosbag_update.egg-info
+.vscode
+build/
+dist/
+
+*.bag
+__pycache__
