@@ -1,5 +1,6 @@
 import rosbag
 import importlib
+import os
 import argparse
 
 ros_primitive_types = [
@@ -18,8 +19,6 @@ ros_primitive_types = [
     "float64",
     "string",
 ]
-
-preview_bag = rosbag.Bag("newBag.bag", "w")
 
 
 def _map_ros_messages(original_message, new_msg):
@@ -43,13 +42,13 @@ def _get_message_fields(message):
     return zip(message.__slots__, message._slot_types)
 
 
-def update_bag(original_bag: rosbag.Bag, data_class, topic_name: str):
+def update_bag(original_bag: rosbag.Bag, data_class, topic_name: str, new_bag):
     for topic, msg, t in original_bag.read_messages(topics=topic_name):
         new_msg = _map_ros_messages(msg, data_class())
-        preview_bag.write(topic, new_msg, t)
+        new_bag.write(topic, new_msg, t)
 
 
-def init(bag: rosbag.Bag):
+def init(bag: rosbag.Bag, new_bag: rosbag.Bag):
     bag_topics = bag.get_type_and_topic_info().topics
     for topic, topic_tuple in bag_topics.items():
         x = topic_tuple.msg_type.split("/")
@@ -60,10 +59,11 @@ def init(bag: rosbag.Bag):
             if i == len(x) - 1:
                 import_string = import_string + ".msg"
                 data_class = importlib.import_module(import_string)
-                update_bag(bag, getattr(data_class, x[i]), topic)
+                update_bag(bag, getattr(data_class, x[i]), topic, new_bag)
                 break
             import_string = import_string + "." + x[i]
-    preview_bag.close()
+    new_bag.close()
+    bag.close()
 
 def get_arguments():
     parser = argparse.ArgumentParser()
@@ -75,7 +75,10 @@ def get_arguments():
 
 def main(*args):
     options = get_arguments()
-    init(rosbag.Bag(options.bag))
+    bag_base_name = os.path.basename(options.bag).replace('.bag', '')
+    new_bag_name = bag_base_name + '.new.bag'
+    init(rosbag.Bag(options.bag), rosbag.Bag(new_bag_name, "w"))
+    print("New bag file written to: " + os.path.join(os.getcwd(), new_bag_name))
 
 if __name__ == "__main__":
     main()
