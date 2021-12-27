@@ -15,3 +15,6 @@ pip install rosbag-update
 rosbag_update -b [bag-path]
 ```
 
+# Notes
+- Please ignore the error message `Failed to load Python extension for LZ4 support. LZ4 compression will not be available.`
+  
