@@ -10,11 +10,12 @@ requires = ["rospkg", "pycryptodomex", "python-gnupg"]
 
 setup(
     name="rosbag-update",
-    version="0.2",
+    version="0.3",
     description="Updates topic data types on ROS bags, solves checksum errors",
     author="Tayfun Yurdaer",
     author_email="tayfun@adastec.com",
     url="https://github.com/yt/rosbag-update",
+    download_url="https://github.com/yt/rosbag-update/archive/refs/tags/v0.3.tar.gz",
     long_description=long_description,
     long_description_content_type="text/markdown",
     license="MIT",
